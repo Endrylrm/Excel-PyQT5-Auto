@@ -6,12 +6,12 @@ Built for automation of Excel files, to get only the data that is relevant to yo
 
 As of right now, those are the features:
 
-1. Export selecteed columns with sorting.
-2. Concatenations of file and sheets their sheets.
+1. Export selected columns with a optional sorting.
+2. Concatenations of files and their sheets.
 
 ## Dependencies
 
-The Excel automation App Dependencies:
+The Excel Automation App Dependencies:
 
 1. Pandas
 2. PyQT5 (will update it to PyQT6, when PyInstaller have support for PyQT6/PySide6)
