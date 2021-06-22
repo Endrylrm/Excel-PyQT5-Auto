@@ -3,6 +3,7 @@ import pandas as pd
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
+from msgboxutils import CreateInfoMessageBox, CreateWarningMessageBox
 
 # Excel Automation - Columns Page/Frame Widget
 class ExcelXlsAuto(QWidget):
@@ -176,22 +177,18 @@ class ExcelXlsAuto(QWidget):
                 if len(Files[0]) > 0:
                     # set our file status label message
                     self.LabelFileStatus.setText("Arquivos carregados!!!")
-                    # create a new message box
-                    msg = QMessageBox()
-                    msg.setWindowTitle("Arquivos carregados!")
-                    msg.setIcon(QMessageBox.Information)
-                    msg.setText("Os seguintes arquivos foram carregados:")
                     # File loaded String for our MessageBox
                     filesLoadedString = ""
                     # for each path in our files
                     for pathString in Files[0]:
                         # add new lines for each path to separate each file
-                        filesLoadedString += pathString + "\n"
-                    # set our informative text, showing our loaded files.
-                    msg.setInformativeText(filesLoadedString)
-                    msg.setStandardButtons(QMessageBox.Ok)
-                    # execute the message box
-                    msg.exec_()
+                        filesLoadedString += os.path.basename(pathString) + "\n"
+                    # create a new message box
+                    CreateInfoMessageBox(
+                        msgWinTitle="Arquivos carregados!",
+                        msgText="Os seguintes arquivos foram carregados:",
+                        msgInfoText=filesLoadedString,
+                    )
             # Error handling
             except ValueError:
                 if len(Files[0]) > 0:
@@ -214,19 +211,13 @@ class ExcelXlsAuto(QWidget):
 
         # show a warning in case there's nothing in our excelFile
         if self.excelFile is None:
-            # create a new message box
-            msg = QMessageBox()
-            msg.setIcon(QMessageBox.Information)
-            msg.setText("Sem nada para exportar:")
-            msg.setInformativeText("Colunas não selecionadas ou sem arquivo para exportar.")
-            msg.setWindowTitle("Sem Arquivo para exportar!")
-            msg.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
-            # msg.setDetailedText("Detalhes: \nPrecisamos de um arquivo e suas colunas das planilhas selecionadas")
-            # just setting the cancel button, to portuguese
-            btnCancel = msg.button(QMessageBox.Cancel)
-            btnCancel.setText("Cancelar")
-            # execute the message
-            msg.exec_()
+            # create a new message box and display it
+            # to show a warning that there isn't a file or selected column to export
+            CreateWarningMessageBox(
+                msgWinTitle="Sem Arquivo para exportar!",
+                msgText="Sem nada para exportar:",
+                msgInfoText="Colunas não selecionadas ou sem arquivo para exportar.",
+            )
             return
         # File Dialog Filter
         FilesFilter = "Excel 2010 (*.xlsx);; Excel 2003 (*.xls);; Todos Arquivos (*.*)"
@@ -253,16 +244,13 @@ class ExcelXlsAuto(QWidget):
             # Print our current dataframe
             print("Current Data:")
             print(self.dataFrame)
-            # create a new message box
-            msg = QMessageBox()
-            msg.setWindowTitle("Exportação Completa!!!")
-            msg.setIcon(QMessageBox.Information)
-            msg.setText("O Arquivo foi exportado para:")
-            # set our informative text, showing our loaded files.
-            msg.setInformativeText(exportExcelFile[0])
-            msg.setStandardButtons(QMessageBox.Ok)
-            # execute the message box
-            msg.exec_()
+            # create a new message box and display it
+            # to show that we successfully exported our file
+            CreateInfoMessageBox(
+                msgWinTitle="Exportação Completa!!!",
+                msgText="O Arquivo foi exportado para:",
+                msgInfoText=exportExcelFile[0],
+            )
             # Print that we exported our data
             print("Exported Data!!!")
             print("Data exported to: " + exportExcelFile[0])

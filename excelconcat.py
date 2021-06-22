@@ -3,6 +3,12 @@ import pandas as pd
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
+from msgboxutils import (
+    CreateInfoMessageBox,
+    CreateMessageBox,
+    CreateWarningMessageBox,
+    DisplayMessageBox,
+)
 
 # Excel Automation - Concatenate Page/Frame Widget
 class ExcelConcat(QWidget):
@@ -212,30 +218,25 @@ class ExcelConcat(QWidget):
                 if len(Files[0]) > 0:
                     print("Concatenating sheets and putting to our DataFrame!")
                     # single sheet handling
-                    if self.isMultiSheetFile == False:
-                        # concatenate our files and sheets into a single one
-                        # from our DataFrame Dictionary
-                        concatExcelFiles = pd.concat(self.dataFramesDict.values(), ignore_index=True)
-                        # Turn our concatenated files in a DataFrame
-                        self.ConcatenatedFile = pd.DataFrame(concatExcelFiles)
+                    # concatenate our files and sheets into a single one
+                    # from our DataFrame Dictionary
+                    concatExcelFiles = pd.concat(self.dataFramesDict.values(), ignore_index=True)
+                    # Turn our concatenated files in a DataFrame
+                    self.ConcatenatedFile = pd.DataFrame(concatExcelFiles)
                     # show that the file are ready to export
                     self.LabelFileStatus.setText("Arquivo prontos para a exportação!!!")
-                    # create a new message box
-                    msg = QMessageBox()
-                    msg.setWindowTitle("Concatenação completa!")
-                    msg.setIcon(QMessageBox.Information)
-                    msg.setText("Os seguintes arquivos e suas planilhas, foram carregados e concatenados:")
                     # File loaded String for our MessageBox
                     filesLoadedString = ""
                     # for each path in our files
                     for pathString in Files[0]:
                         # add new lines for each path to separate each file
                         filesLoadedString += os.path.basename(pathString) + "\n"
-                    # set our informative text, showing our loaded files.
-                    msg.setInformativeText(filesLoadedString)
-                    msg.setStandardButtons(QMessageBox.Ok)
-                    # execute the message box
-                    msg.exec_()
+                    # create a new message box
+                    CreateInfoMessageBox(
+                        msgWinTitle="Concatenação completa!",
+                        msgText="Os seguintes arquivos e suas planilhas, foram carregados e concatenados:",
+                        msgInfoText=filesLoadedString,
+                    )
             # Error handling
             except ValueError:
                 # just checking if there's a file
@@ -257,20 +258,16 @@ class ExcelConcat(QWidget):
         to a single Excel File, as single or multi sheet file.
         """
 
-        # show a warning in case there's nothing in our DataFrame Dictionary
-        if len(self.dataFramesDict) == 0:
-            # create a new message box
-            msg = QMessageBox()
-            msg.setIcon(QMessageBox.Information)
-            msg.setText("Sem nada para exportar:")
-            msg.setInformativeText("Arquivos não carregados ou sem arquivo para exportar.")
-            msg.setWindowTitle("Sem Arquivo para exportar!")
-            msg.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
-            # just setting the cancel button, to portuguese
-            btnCancel = msg.button(QMessageBox.Cancel)
-            btnCancel.setText("Cancelar")
-            # execute the message
-            msg.exec_()
+        # First show a warning and return
+        # in case there's nothing in our DataFrame Dictionary or Concatenated File
+        if self.ConcatenatedFile is None or len(self.dataFramesDict) == 0:
+            # create a new message box and display it
+            # to show a warning that there isn't a file to export
+            CreateWarningMessageBox(
+                msgWinTitle="Sem Arquivo para exportar!",
+                msgText="Sem nada para exportar:",
+                msgInfoText="Arquivos não carregados ou sem arquivo para exportar.",
+            )
             return
         # File Dialog Filter
         FilesFilter = "Excel 2010 (*.xlsx);; Excel 2003 (*.xls);; Todos Arquivos (*.*)"
@@ -304,19 +301,17 @@ class ExcelConcat(QWidget):
                 print(self.ConcatenatedFile)
             # Print that we exported our data
             print("Exported Data!!!")
-            # create a new message box
-            msg = QMessageBox()
-            msg.setWindowTitle("Exportação Completa!!!")
-            msg.setIcon(QMessageBox.Information)
-            msg.setText("O Arquivo foi exportado para:")
-            # set our informative text, showing our loaded files.
-            msg.setInformativeText(exportExcelFile[0])
-            msg.setStandardButtons(QMessageBox.Ok)
-            # execute the message box
-            msg.exec_()
+            # print where we exported our file
             print("Data exported to: " + exportExcelFile[0])
-            # Exported data message box
-            # QMessageBox.showinfo(title="Arquivo Exportado!", message="O Arquivo foi exportado para: " + exportExcelFile)
+            # create a new message box and display it
+            # to show that we successfully exported our file
+            msg = CreateMessageBox(
+                msgWinTitle="Exportação Completa!!!",
+                msgText="O Arquivo foi exportado para:",
+                msgInfoText=exportExcelFile[0],
+            )
+            # display our message box
+            DisplayMessageBox(msg)
             # Make our DataFrame Dictionary empty again
             self.dataFramesDict = {}
             # Make our Excel files List empty
