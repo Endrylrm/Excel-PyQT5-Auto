@@ -155,7 +155,7 @@ class ExcelConcat(QWidget):
 
         Load multiple excel files for our Dataframe Dictionary from a FileDialog,
         it also append/concatenate everything into our Concatenated DataFrame, so later
-        we can export it to a Excel File, as a single or multi sheet.
+        we can export it to a Excel File, as a single or multi sheet file.
         """
 
         # Make our DataFrame Dictionary empty each time we load our files
@@ -254,11 +254,11 @@ class ExcelConcat(QWidget):
         Function ExportExcelFile()
 
         Responsible to export / save our concatenated / appended DataFrame Dictionary
-        to a single Excel File, as single our multi sheet.
+        to a single Excel File, as single or multi sheet file.
         """
 
-        # show a warning in case there's nothing in our excelFile
-        if len(self.dataFramesDict) == 0:  # self.ConcatenatedFile is None or
+        # show a warning in case there's nothing in our DataFrame Dictionary
+        if len(self.dataFramesDict) == 0:
             # create a new message box
             msg = QMessageBox()
             msg.setIcon(QMessageBox.Information)
@@ -283,7 +283,7 @@ class ExcelConcat(QWidget):
         )
         if exportExcelFile[0]:
             ExportDataFrame = None
-            # multi sheets file handler
+            # multi sheets file Export handling
             if self.isMultiSheetFile == True:
                 # create a Excel Writer for our multi sheet file
                 writer = pd.ExcelWriter(exportExcelFile[0])
