@@ -30,12 +30,16 @@ class ExcelConcat(QWidget):
         self.CreateWidgets(controller)
         # then set our grid layout and config
         self.GridConfigs()
-        # our DataFrame
-        self.dataFrame = pd.DataFrame()
-        # init our excelFile as None
-        self.excelFile = None
-        # Date by sheet name bool
+        # our DataFrame Dictionary to hold our dataframes and it's sheets names
+        self.dataFramesDict = {}
+        # our Excel Files list
+        self.excelFilesList = []
+        # our concatenated excel file
+        self.ConcatenatedFile = None
+        # is the Date get by it's sheet name?
         self.DatebySheetName = False
+        # is this a multi sheet file?
+        self.isMultiSheetFile = False
 
     # Creation of widgets on screen
     def CreateWidgets(self, controller):
@@ -58,6 +62,12 @@ class ExcelConcat(QWidget):
         # CheckBox - Date by Sheet Name
         self.CheckDateBySheetName = QCheckBox(self, text="Data baseada no nome das planilhas nas pastas de trabalho?")
         self.CheckDateBySheetName.stateChanged.connect(self.IsDateBySheetName)
+        # CheckBox - Multi Sheet File
+        self.CheckMultiSheet = QCheckBox(self, text="Exportar para múltiplas planilhas?")
+        self.CheckMultiSheet.setToolTip(
+            "Em vez de exportar uma única planilha no arquivo, exportar em várias planilhas de um arquivo."
+        )
+        self.CheckMultiSheet.stateChanged.connect(self.MultiSheetCheck)
         # Load Excel Button
         self.LoadExcelFileButton = QPushButton(self, text="Abrir Arquivos do Excel")
         self.LoadExcelFileButton.setToolTip(
@@ -85,30 +95,33 @@ class ExcelConcat(QWidget):
         # space between widgets
         myGridLayout.setSpacing(25)
         # stretch last row
-        myGridLayout.setRowStretch(6, 1)
+        myGridLayout.setRowStretch(7, 1)
         # Label - Title
         myGridLayout.addWidget(self.LabelTitle, 0, 0, 1, 2, Qt.AlignmentFlag.AlignCenter)
         # Label - File Status
         myGridLayout.addWidget(self.LabelFileStatus, 1, 0, 1, 2, Qt.AlignmentFlag.AlignCenter)
         # CheckBox - Date by Sheet Name
         myGridLayout.addWidget(self.CheckDateBySheetName, 2, 0, 1, 2, Qt.AlignmentFlag.AlignCenter)
+        # CheckBox - Multi sheet files
+        myGridLayout.addWidget(self.CheckMultiSheet, 3, 0, 1, 2, Qt.AlignmentFlag.AlignCenter)
         # Button Load Excel
-        myGridLayout.addWidget(self.LoadExcelFileButton, 3, 0, Qt.AlignmentFlag.AlignCenter)
+        myGridLayout.addWidget(self.LoadExcelFileButton, 4, 0, Qt.AlignmentFlag.AlignCenter)
         # Button Export Excel
-        myGridLayout.addWidget(self.ExportExcelFileButton, 3, 1, Qt.AlignmentFlag.AlignCenter)
+        myGridLayout.addWidget(self.ExportExcelFileButton, 4, 1, Qt.AlignmentFlag.AlignCenter)
         # Label - DevNote
-        myGridLayout.addWidget(self.LabelDevNote, 4, 0, 1, 2, Qt.AlignmentFlag.AlignCenter)
+        myGridLayout.addWidget(self.LabelDevNote, 5, 0, 1, 2, Qt.AlignmentFlag.AlignCenter)
         # Button - Application Home
-        myGridLayout.addWidget(self.buttonAppHome, 5, 0, 1, 2, Qt.AlignmentFlag.AlignCenter)
+        myGridLayout.addWidget(self.buttonAppHome, 6, 0, 1, 2, Qt.AlignmentFlag.AlignCenter)
         # set this widget layout to the grid layout
         self.setLayout(myGridLayout)
 
+    # CheckBox - Date by it's sheet name - callback
     def IsDateBySheetName(self, state):
         """
         Function IsDateBySheetName(state)
         state: The current state of our CheckBox.
 
-        Used to set our date by sheet name, when we change our CheckBox.
+        Used to set our date by the sheet name, when we change our CheckBox state.
         """
 
         if state == Qt.Checked:
@@ -118,21 +131,40 @@ class ExcelConcat(QWidget):
             self.DatebySheetName = False
             print("Unchecked")
 
+    # CheckBox - Multi Sheet File - callback
+    def MultiSheetCheck(self, state):
+        """
+        Function MultiSheetCheck(state)
+        state: The current state of our CheckBox.
+
+        Used to set exported file as a multi sheet file, when we change our CheckBox state.
+        So we concatenate every sheet into the exported file.
+        """
+
+        if state == Qt.Checked:
+            self.isMultiSheetFile = True
+            print("Checked")
+        else:
+            self.isMultiSheetFile = False
+            print("Unchecked")
+
     # Load Excel files from a FileDialog
     def LoadExcelFiles(self):
         """
         Function LoadMultExcelFiles()
 
-        Load multiple excel files for our Dataframe from a FileDialog,
-        it also append/concatenate everything into our DataFrame, so later we can
-        export it to a Excel File.
+        Load multiple excel files for our Dataframe Dictionary from a FileDialog,
+        it also append/concatenate everything into our Concatenated DataFrame, so later
+        we can export it to a Excel File, as a single or multi sheet.
         """
 
-        # Make our DataFrame empty each time we load our files
-        # To not append data wrong to our DataFrame
-        self.dataFrame = pd.DataFrame()
-        # Make our Excelfile equals None each time we load our files
-        self.excelFile = None
+        # Make our DataFrame Dictionary empty each time we load our files
+        # To not concatenate wrong data to our DataFrame
+        self.dataFramesDict = {}
+        # Make our Excel files list empty, each time we load our files
+        self.excelFilesList = []
+        # Make concatenated excel file as None, each time we load a file
+        self.ConcatenatedFile = None
         # File Dialog Filter
         FilesFilter = "Excel 2010 (*.xlsx);; Excel 2003 (*.xls);; Todos Arquivos (*.*)"
         # A File dialog for our App
@@ -149,28 +181,45 @@ class ExcelConcat(QWidget):
             try:
                 # for each file picked by our file dialog
                 for File in Files[0]:
-                    self.excelFile = pd.ExcelFile(File)
-                    # append all our sheets into one
-                    for sheets in self.excelFile.sheet_names:
-                        # first parse each sheet
-                        appendSheets = pd.DataFrame(self.excelFile.parse(sheets))
-                        if self.DatebySheetName == True:
-                            # Add a column for the Dates
-                            dates = appendSheets.insert(0, "Data", sheets)
-                            # format to date our sheet name
-                            appendSheets["Data"] = pd.to_datetime(appendSheets["Data"], format="%d%m%Y")
-                            # format to DD/MM/YYYY
-                            appendSheets["Data"] = appendSheets["Data"].dt.strftime("%d/%m/%Y")
-                        # append / concatenate to our data frame
-                        self.dataFrame = self.dataFrame.append(appendSheets)
-                        # Just for debug purposes
-                        print(appendSheets)
-                        print("Concatenating sheets and putting to our DataFrame!")
-                    print("File loaded and Appended: " + os.path.basename(File))
-                # show that the file are ready to export
-                self.LabelFileStatus.setText("Arquivo prontos para a exportação!!!")
+                    print("File loaded: " + os.path.basename(File))
+                    # excel file in our files
+                    excelFile = pd.ExcelFile(File)
+                    # append / concatenate to our excel file list
+                    self.excelFilesList.append(excelFile)
+                    # for each excel file in our excel files list
+                    for xlsFile in self.excelFilesList:
+                        # turn our sheets into DataFrames
+                        for sheets in xlsFile.sheet_names:
+                            # first parse each sheet
+                            SheetsToConcatenate = pd.DataFrame(xlsFile.parse(sheets))
+                            # Date by sheet name (example = "01012021")
+                            if self.DatebySheetName == True:
+                                # Add a column for the Dates
+                                dates = SheetsToConcatenate.insert(0, "Data", sheets)
+                                # format to date our sheet name
+                                SheetsToConcatenate["Data"] = pd.to_datetime(
+                                    SheetsToConcatenate["Data"], format="%d%m%Y"
+                                )
+                                # format to DD/MM/YYYY
+                                SheetsToConcatenate["Data"] = SheetsToConcatenate["Data"].dt.strftime("%d/%m/%Y")
+                            # Just for debug purposes
+                            print(SheetsToConcatenate)
+                            # put our sheets on our dataFrame Dictionary
+                            self.dataFramesDict[sheets] = SheetsToConcatenate
+                            # print our sheet in our dictionary
+                            print(self.dataFramesDict[sheets])
                 # if our files paths are bigger than 0
                 if len(Files[0]) > 0:
+                    print("Concatenating sheets and putting to our DataFrame!")
+                    # single sheet handling
+                    if self.isMultiSheetFile == False:
+                        # concatenate our files and sheets into a single one
+                        # from our DataFrame Dictionary
+                        concatExcelFiles = pd.concat(self.dataFramesDict.values(), ignore_index=True)
+                        # Turn our concatenated files in a DataFrame
+                        self.ConcatenatedFile = pd.DataFrame(concatExcelFiles)
+                    # show that the file are ready to export
+                    self.LabelFileStatus.setText("Arquivo prontos para a exportação!!!")
                     # create a new message box
                     msg = QMessageBox()
                     msg.setWindowTitle("Concatenação completa!")
@@ -181,33 +230,35 @@ class ExcelConcat(QWidget):
                     # for each path in our files
                     for pathString in Files[0]:
                         # add new lines for each path to separate each file
-                        filesLoadedString += pathString + "\n"
+                        filesLoadedString += os.path.basename(pathString) + "\n"
                     # set our informative text, showing our loaded files.
                     msg.setInformativeText(filesLoadedString)
                     msg.setStandardButtons(QMessageBox.Ok)
-                    # execute the message
+                    # execute the message box
                     msg.exec_()
             # Error handling
             except ValueError:
-                self.LabelFileStatus.setText("Não é possível abrir esse arquivo: " + os.path.basename(File))
-                print("Unable to open this file: " + os.path.basename(File))
+                # just checking if there's a file
+                if len(Files[0]) > 0:
+                    self.LabelFileStatus.setText("Não é possível abrir esse arquivo: " + os.path.basename(File))
+                    print("Unable to open this file: " + os.path.basename(File))
             # Obsolete with FileDialog
             # Just here in case, we switch to a automatic directory file loading
             except FileNotFoundError:
                 self.LabelFileStatus.setText("O seguinte Arquivo não foi encontrado: " + os.path.basename(File))
                 print("File not found, please try another file: " + os.path.basename(File))
 
-    # Export / Save our data frame to a excel file
+    # Export / Save our DataFrame Dictionary to a excel file
     def ExportExcelFile(self):
         """
         Function ExportExcelFile()
 
-        Responsible to export / save our appended DataFrame to a
-        single Excel File.
+        Responsible to export / save our concatenated / appended DataFrame Dictionary
+        to a single Excel File, as single our multi sheet.
         """
 
         # show a warning in case there's nothing in our excelFile
-        if self.excelFile is None:
+        if len(self.dataFramesDict) == 0:  # self.ConcatenatedFile is None or
             # create a new message box
             msg = QMessageBox()
             msg.setIcon(QMessageBox.Information)
@@ -215,7 +266,6 @@ class ExcelConcat(QWidget):
             msg.setInformativeText("Arquivos não carregados ou sem arquivo para exportar.")
             msg.setWindowTitle("Sem Arquivo para exportar!")
             msg.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
-            # msg.setDetailedText("Detalhes: \nPrecisamos de um arquivo e suas colunas das planilhas selecionadas")
             # just setting the cancel button, to portuguese
             btnCancel = msg.button(QMessageBox.Cancel)
             btnCancel.setText("Cancelar")
@@ -232,19 +282,47 @@ class ExcelConcat(QWidget):
             initialFilter="Excel 2010 (*.xlsx)",
         )
         if exportExcelFile[0]:
-            ExportDataFrame = self.dataFrame.to_excel(exportExcelFile[0], index=False)
-            # Print our current dataframe
-            print("Current Data:")
-            print(self.dataFrame)
+            ExportDataFrame = None
+            # multi sheets file handler
+            if self.isMultiSheetFile == True:
+                # create a Excel Writer for our multi sheet file
+                writer = pd.ExcelWriter(exportExcelFile[0])
+                # for each sheet in our DataFrame Dictionary
+                for sheet in self.dataFramesDict:
+                    # export to our excel file as a new sheet in our file
+                    ExportDataFrame = self.dataFramesDict[sheet].to_excel(writer, sheet_name=sheet, index=False)
+                # Print our current dataframe
+                print("Current Data:")
+                print(self.dataFramesDict)
+                # Save our file to our destination
+                writer.save()
+            else:
+                # otherwise export a single sheet file and it's concatenated sheets
+                ExportDataFrame = self.ConcatenatedFile.to_excel(exportExcelFile[0], index=False)
+                # Print our current dataframe
+                print("Current Data:")
+                print(self.ConcatenatedFile)
             # Print that we exported our data
             print("Exported Data!!!")
+            # create a new message box
+            msg = QMessageBox()
+            msg.setWindowTitle("Exportação Completa!!!")
+            msg.setIcon(QMessageBox.Information)
+            msg.setText("O Arquivo foi exportado para:")
+            # set our informative text, showing our loaded files.
+            msg.setInformativeText(exportExcelFile[0])
+            msg.setStandardButtons(QMessageBox.Ok)
+            # execute the message box
+            msg.exec_()
             print("Data exported to: " + exportExcelFile[0])
             # Exported data message box
             # QMessageBox.showinfo(title="Arquivo Exportado!", message="O Arquivo foi exportado para: " + exportExcelFile)
-            # Make our DataFrame empty again
-            self.dataFrame = pd.DataFrame()
-            # Make our Excelfile as None
-            self.excelFile = None
+            # Make our DataFrame Dictionary empty again
+            self.dataFramesDict = {}
+            # Make our Excel files List empty
+            self.excelFilesList = []
+            # Make our sheet name list empty
+            self.ConcatenatedFile = None
             # Make our exportDataFrame as None
             ExportDataFrame = None
             # return our label to default text

@@ -172,10 +172,10 @@ class ExcelXlsAuto(QWidget):
                     item = QListWidgetItem(File)
                     # append the files paths to our ListBox
                     self.listBoxXlsFiles.addItem(item)
-                # set our file status label message
-                self.LabelFileStatus.setText("Arquivos carregados!!!")
                 # if our files paths are bigger than 0
                 if len(Files[0]) > 0:
+                    # set our file status label message
+                    self.LabelFileStatus.setText("Arquivos carregados!!!")
                     # create a new message box
                     msg = QMessageBox()
                     msg.setWindowTitle("Arquivos carregados!")
@@ -190,12 +190,13 @@ class ExcelXlsAuto(QWidget):
                     # set our informative text, showing our loaded files.
                     msg.setInformativeText(filesLoadedString)
                     msg.setStandardButtons(QMessageBox.Ok)
-                    # execute the message
+                    # execute the message box
                     msg.exec_()
             # Error handling
             except ValueError:
-                self.LabelFileStatus.setText("Não é possível abrir esse arquivo: " + os.path.basename(File))
-                print("Unable to open this file: " + os.path.basename(File))
+                if len(Files[0]) > 0:
+                    self.LabelFileStatus.setText("Não é possível abrir esse arquivo: " + os.path.basename(File))
+                    print("Unable to open this file: " + os.path.basename(File))
             # Obsolete with FileDialog
             # Just here in case, we switch to a automatic directory file loading
             except FileNotFoundError:
@@ -246,10 +247,22 @@ class ExcelXlsAuto(QWidget):
                 print("Data sorted!!!")
             print(self.dataFrame)
             # Export our data frame to a Excel file
-            ExportDataFrame = self.dataFrame.to_excel(exportExcelFile[0], columns=self.selectedColumns, index=False)
+            ExportDataFrame = self.dataFrame.to_excel(
+                exportExcelFile[0], sheet_name=self.CurrentSelectedSheet, columns=self.selectedColumns, index=False
+            )
             # Print our current dataframe
             print("Current Data:")
             print(self.dataFrame)
+            # create a new message box
+            msg = QMessageBox()
+            msg.setWindowTitle("Exportação Completa!!!")
+            msg.setIcon(QMessageBox.Information)
+            msg.setText("O Arquivo foi exportado para:")
+            # set our informative text, showing our loaded files.
+            msg.setInformativeText(exportExcelFile[0])
+            msg.setStandardButtons(QMessageBox.Ok)
+            # execute the message box
+            msg.exec_()
             # Print that we exported our data
             print("Exported Data!!!")
             print("Data exported to: " + exportExcelFile[0])
