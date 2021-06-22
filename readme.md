@@ -31,7 +31,7 @@ If you want to package/build into a executable file, use PyInstaller.
 <summary>Windows / Mac OS</summary>
 <br>
 
-> PyInstaller --onefile -w main.py
+> PyInstaller --onefile -w main.py -i Excel-automation-icon.ico
 
 </details>
 
@@ -39,6 +39,7 @@ If you want to package/build into a executable file, use PyInstaller.
 <summary>Linux</summary>
 <br>
 
-> PyInstaller --onefile main.py
+> PyInstaller --onefile main.py -i Excel-automation-icon.ico
 
 </details>
+
