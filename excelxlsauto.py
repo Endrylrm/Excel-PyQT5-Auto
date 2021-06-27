@@ -61,10 +61,10 @@ class ExcelXlsAuto(QWidget):
         self.LoadExcelFileButton.setToolTip(
             "<b>Abrir Arquivos do Excel:</b> Escolha um ou vários arquivos para carregar."
         )
-        self.LoadExcelFileButton.clicked.connect(lambda: self.LoadExcelFiles())
+        self.LoadExcelFileButton.clicked.connect(self.LoadExcelFiles)
         # Export to Excel Button
         self.ExportExcelFileButton = QPushButton(self, text="Exportar Arquivo do Excel")
-        self.ExportExcelFileButton.clicked.connect(lambda: self.ExportExcelFile())
+        self.ExportExcelFileButton.clicked.connect(self.ExportExcelFile)
         # Home Page Button
         self.buttonAppHome = QPushButton(self, text="Menu Inicial")
         self.buttonAppHome.clicked.connect(lambda: controller.show_Page("AppHome"))

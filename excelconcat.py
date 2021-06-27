@@ -46,6 +46,8 @@ class ExcelConcat(QWidget):
         self.DatebySheetName = False
         # is this a multi sheet file?
         self.isMultiSheetFile = False
+        # show a message in our QListWidget, that we are waiting a file
+        self.debugMessage("Esperando Arquivos para concatenação...")
 
     # Creation of widgets on screen
     def CreateWidgets(self, controller):
@@ -79,11 +81,13 @@ class ExcelConcat(QWidget):
         self.LoadExcelFileButton.setToolTip(
             "<b>Abrir Arquivos do Excel:</b> Escolha um ou vários arquivos para carregar."
         )
-        self.LoadExcelFileButton.clicked.connect(lambda: self.LoadExcelFiles())
+        self.LoadExcelFileButton.clicked.connect(self.LoadExcelFiles)
         # Export to Excel Button
         self.ExportExcelFileButton = QPushButton(self, text="Exportar Arquivo do Excel")
         self.ExportExcelFileButton.setToolTip("<b>Exporte Arquivos do Excel:</b> Exporte seu arquivo concatenado.")
-        self.ExportExcelFileButton.clicked.connect(lambda: self.ExportExcelFile())
+        self.ExportExcelFileButton.clicked.connect(self.ExportExcelFile)
+        # Debug message Box - List Widget
+        self.listDebugMessages = QListWidget(self)
         # Home Page Button
         self.buttonAppHome = QPushButton(self, text="Menu Inicial")
         self.buttonAppHome.clicked.connect(lambda: controller.show_Page("AppHome"))
@@ -101,7 +105,7 @@ class ExcelConcat(QWidget):
         # space between widgets
         myGridLayout.setSpacing(25)
         # stretch last row
-        myGridLayout.setRowStretch(7, 1)
+        # myGridLayout.setRowStretch(8, 1)
         # Label - Title
         myGridLayout.addWidget(self.LabelTitle, 0, 0, 1, 2, Qt.AlignmentFlag.AlignCenter)
         # Label - File Status
@@ -116,8 +120,10 @@ class ExcelConcat(QWidget):
         myGridLayout.addWidget(self.ExportExcelFileButton, 4, 1, Qt.AlignmentFlag.AlignCenter)
         # Label - DevNote
         myGridLayout.addWidget(self.LabelDevNote, 5, 0, 1, 2, Qt.AlignmentFlag.AlignCenter)
+        # List Widget - Debug messages
+        myGridLayout.addWidget(self.listDebugMessages, 6, 0, 1, 2)
         # Button - Application Home
-        myGridLayout.addWidget(self.buttonAppHome, 6, 0, 1, 2, Qt.AlignmentFlag.AlignCenter)
+        myGridLayout.addWidget(self.buttonAppHome, 7, 0, 1, 2, Qt.AlignmentFlag.AlignCenter)
         # set this widget layout to the grid layout
         self.setLayout(myGridLayout)
 
@@ -154,6 +160,35 @@ class ExcelConcat(QWidget):
             self.isMultiSheetFile = False
             print("Unchecked")
 
+    def debugMessage(self, msg: str, bold: bool = False, italic: bool = False):
+        """
+        Function debugMessage(msg)
+        msg: The message we are going to show on our QListWidget.
+        bold: is the font bold? Defaults to False.
+        italic: is the font italic? Defaults to False.
+
+        Used to show a message in our QListWidget.
+        """
+
+        # the item used to show our message
+        item = QListWidgetItem(msg)
+        # set to no flags, so our item is unselectable
+        item.setFlags(Qt.NoItemFlags)
+        # Create a new font
+        itemFont = QFont()
+        # set the font to bold
+        if bold:
+            # set our item font to bold
+            itemFont.setBold(True)
+        # set font to italic
+        if italic:
+            # set our item font to italic
+            itemFont.setItalic(True)
+        # set our item font to the new font
+        item.setFont(itemFont)
+        # Add our item to our List Widget
+        self.listDebugMessages.addItem(item)
+
     # Load Excel files from a FileDialog
     def LoadExcelFiles(self):
         """
@@ -171,6 +206,8 @@ class ExcelConcat(QWidget):
         self.excelFilesList = []
         # Make concatenated excel file as None, each time we load a file
         self.ConcatenatedFile = None
+        # clear our Debug Messages list
+        self.listDebugMessages.clear()
         # File Dialog Filter
         FilesFilter = "Excel 2010 (*.xlsx);; Excel 2003 (*.xls);; Todos Arquivos (*.*)"
         # A File dialog for our App
@@ -188,8 +225,14 @@ class ExcelConcat(QWidget):
                 # for each file picked by our file dialog
                 for File in Files[0]:
                     print("File loaded: " + os.path.basename(File))
+                    # show a message in our QListWidget, that we loaded our file
+                    self.debugMessage("Arquivo carregado: " + os.path.basename(File), True)
                     # excel file in our files
                     excelFile = pd.ExcelFile(File)
+                    # debug a message for each sheet in out excel file
+                    for debugSheet in excelFile.sheet_names:
+                        # show a message in our QListWidget, that we are concatenating the sheets
+                        self.debugMessage("Concatenando a planilha: " + debugSheet)
                     # append / concatenate to our excel file list
                     self.excelFilesList.append(excelFile)
                     # for each excel file in our excel files list
@@ -224,6 +267,8 @@ class ExcelConcat(QWidget):
                     self.ConcatenatedFile = pd.DataFrame(concatExcelFiles)
                     # show that the file are ready to export
                     self.LabelFileStatus.setText("Arquivo prontos para a exportação!!!")
+                    # show a message in our QListWidget, that we concatenated our file
+                    self.debugMessage("Arquivos concatenados com sucesso, esperando exportação!", True)
                     # File loaded String for our MessageBox
                     filesLoadedString = ""
                     # for each path in our files
@@ -242,6 +287,8 @@ class ExcelConcat(QWidget):
                 if len(Files[0]) > 0:
                     self.LabelFileStatus.setText("Não é possível abrir esse arquivo: " + os.path.basename(File))
                     print("Unable to open this file: " + os.path.basename(File))
+                    # show a message in our QListWidget, that we are unable to open this file
+                    self.debugMessage("Não é possível abrir esse arquivo: " + os.path.basename(File))
             # Obsolete with FileDialog
             # Just here in case, we switch to a automatic directory file loading
             except FileNotFoundError:
@@ -302,6 +349,8 @@ class ExcelConcat(QWidget):
             print("Exported Data!!!")
             # print where we exported our file
             print("Data exported to: " + exportExcelFile[0])
+            # clear our Debug Messages list
+            self.listDebugMessages.clear()
             # create a new message box and display it
             # to show that we successfully exported our file
             msg = CreateMessageBox(
@@ -319,5 +368,7 @@ class ExcelConcat(QWidget):
             self.ConcatenatedFile = None
             # Make our exportDataFrame as None
             ExportDataFrame = None
+            # show a message in our QListWidget, that we are waiting for a file
+            self.debugMessage("Esperando Arquivos para concatenação...")
             # return our label to default text
             self.LabelFileStatus.setText("Esperando Arquivo...")

@@ -10,5 +10,6 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
     # Main window of our Application
     window = MyApp("Excel Automatação", 1024, 768, "Excel-automation-icon.ico")
+    # Show our window
     window.show()
     sys.exit(app.exec())

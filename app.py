@@ -25,6 +25,7 @@ class MyApp(QMainWindow):
         AppTitle: Used to change the Application Window Title.
         AppWidth: Used to change the Application Window Width.
         AppHeight: Used to change the Application Window Height.
+        AppIcon: Used to change the Application Icon.
 
         Initialization of Application (Main Window) Class.
         """
@@ -44,7 +45,7 @@ class MyApp(QMainWindow):
         self.containerGrid = QGridLayout(self.container)
         # set our container layout a grid layout
         self.container.setLayout(self.containerGrid)
-        # Start our pages Dictionary with nothing
+        # Start our pages Dictionary empty
         self.pages = {}
         # current Page
         self.currentPage = None
@@ -61,16 +62,17 @@ class MyApp(QMainWindow):
         """
         Function initPages(container)
         container: Our container module, to control our widget size.
-        AppWidth: The Page Width.
-        AppHeight: The Page Height.
 
         Initialization for our Frames/Pages, requires a container.
         """
 
+        # Application Home Page
         self.pages["AppHome"] = AppHome(container, self)
         self.pages["AppHome"].hide()
+        # Excel Automation - export selected Columns
         self.pages["ExcelXlsAuto"] = ExcelXlsAuto(container, self)
         self.pages["ExcelXlsAuto"].hide()
+        # Excel Automation - Concatenate files and sheets
         self.pages["ExcelConcat"] = ExcelConcat(container, self)
         self.pages["ExcelConcat"].hide()
 
@@ -80,12 +82,12 @@ class MyApp(QMainWindow):
             self.containerGrid.addWidget(self.pages[page], 0, 0)
 
     # Page/Frame to show function
-    def show_Page(self, page):
+    def show_Page(self, page: str):
         """
         Function show_Page(page)
         page: The string reference for the page in our pages Dictionary.
 
-        Show a page for the given page name.
+        Show a page for the given page name in our dictionary.
         """
 
         # hide our current page
@@ -100,8 +102,8 @@ class MyApp(QMainWindow):
     def CenterWindow(self, AppWidth=300, AppHeight=300):
         """
         Function CenterWindow(width, height)
-        width: The width of our root/window module.
-        height: the height of our root/window module.
+        width: The width of our root/window widget.
+        height: the height of our root/window widget.
 
         Center our windows on screen and controls it's size.
         """

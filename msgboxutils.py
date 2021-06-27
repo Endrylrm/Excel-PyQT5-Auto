@@ -29,7 +29,7 @@ def EditMessageBoxProps(
     msg: The message box created previously.
     msgWinTitle: the window title of our message box.
     msgText: the text in our message box.
-    msgInfoText: the informative text in our message box.
+    msgInfoText: the information text in our message box.
     msgDetailText: the detailed text of our message box.
     msgIcon: the icon on our message box.
     msgButtons: the button on our message box.
@@ -97,7 +97,7 @@ def CreateMessageBox(
 
     msgWinTitle: Message box window title.
     msgText: The text in our message box.
-    msgInfoText: the informative text in our message box.
+    msgInfoText: the information text in our message box.
     msgDetailText: the detailed text of our message box, defaults to None.
     msgIcon: the icon on our message box (defaults to QMessageBox.Information).
     msgButtons: the button on our message box (defaults to QMessageBox.Ok).
@@ -198,7 +198,7 @@ def CreateWarningMessageBox(
     Function CreateWarningMessageBox(winTitle, msgText, msgInfoText, msgDetailText, msgButtons, msgDefaultButton, msgEscapeButton)
     msgWinTitle: Message box window title.
     msgText: The text in our message box.
-    msgInfoText: the informative text in our message box.
+    msgInfoText: the information text in our message box.
     msgDetailText: the detailed text of our message box, defaults to None.
     msgButtons: the button on our message box (defaults to QMessageBox.Ok).
     msgDefaultButton: the confirmation button/key, defaults to enter.
@@ -244,7 +244,7 @@ def CreateErrorMessageBox(
     Function CreateErrorMessageBox(winTitle, msgText, msgInfoText, msgDetailText, msgButtons, msgDefaultButton, msgEscapeButton)
     msgWinTitle: Message box window title.
     msgText: The text in our message box.
-    msgInfoText: the informative text in our message box.
+    msgInfoText: the information text in our message box.
     msgDetailText: the detailed text of our message box, defaults to None.
     msgButtons: the button on our message box (defaults to QMessageBox.Ok).
     msgDefaultButton: the confirmation button/key, defaults to enter.
@@ -290,7 +290,7 @@ def CreateQuestionMessageBox(
     Function CreateQuestionMessageBox(winTitle, msgText, msgInfoText, msgDetailText, msgButtons, msgDefaultButton, msgEscapeButton)
     msgWinTitle: Message box window title.
     msgText: The text in our message box.
-    msgInfoText: the informative text in our message box.
+    msgInfoText: the information text in our message box.
     msgDetailText: the detailed text of our message box, defaults to None.
     msgButtons: the button on our message box (defaults to QMessageBox.Ok).
     msgDefaultButton: the confirmation button/key, defaults to enter.
