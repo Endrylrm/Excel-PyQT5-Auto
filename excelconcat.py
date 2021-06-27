@@ -40,9 +40,9 @@ class ExcelConcat(QWidget):
         self.dataFramesDict = {}
         # our Excel Files list
         self.excelFilesList = []
-        # our concatenated excel file
+        # our concatenated excel file, used by Single Sheet option
         self.ConcatenatedFile = None
-        # is the Date get by it's sheet name?
+        # is the Date get by it's sheet name (example: "20122021")?
         self.DatebySheetName = False
         # is this a multi sheet file?
         self.isMultiSheetFile = False
@@ -217,7 +217,6 @@ class ExcelConcat(QWidget):
                 # if our files paths are bigger than 0
                 if len(Files[0]) > 0:
                     print("Concatenating sheets and putting to our DataFrame!")
-                    # single sheet handling
                     # concatenate our files and sheets into a single one
                     # from our DataFrame Dictionary
                     concatExcelFiles = pd.concat(self.dataFramesDict.values(), ignore_index=True)

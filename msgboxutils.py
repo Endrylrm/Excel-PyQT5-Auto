@@ -38,6 +38,9 @@ def EditMessageBoxProps(
 
     Used to edit properties in our message Box.
     """
+    if msg is None:
+        print("no MessageBox to Edit!")
+        return
 
     # set message box window title, if it's not none.
     if msgWinTitle is not None:
@@ -101,7 +104,8 @@ def CreateMessageBox(
     msgDefaultButton: the confirmation button/key, defaults to enter.
     msgEscapeButton: the escape button/key, defaults to esc.
 
-    Used to create a new message box to display it, returns a QMessageBox object.
+    Used to create a new message box, that's editable to your needs,
+    returns a QMessageBox object.
     """
 
     # create a new message box
@@ -135,14 +139,24 @@ def CreateMessageBox(
 
 
 # Create a new Information Message Box
-def CreateInfoMessageBox(msgWinTitle, msgText, msgInfoText, msgDetailText=None, msgButtons=QMessageBox.Ok):
+def CreateInfoMessageBox(
+    msgWinTitle,
+    msgText,
+    msgInfoText,
+    msgDetailText=None,
+    msgButtons=QMessageBox.Ok,
+    msgDefaultButton=None,
+    msgEscapeButton=None,
+):
     """
-    Function CreateInfoMessageBox(winTitle, msgText, msgInfoText, msgDetailText, msgButtons)
+    Function CreateInfoMessageBox(winTitle, msgText, msgInfoText, msgDetailText, msgButtons, msgDefaultButton, msgEscapeButton)
     msgWinTitle: Message box window title.
     msgText: The text in our message box.
     msgInfoText: the information text in our message box.
     msgDetailText: the detailed text of our message box, defaults to None.
     msgButtons: the button on our message box (defaults to QMessageBox.Ok).
+    msgDefaultButton: the confirmation button/key, defaults to enter.
+    msgEscapeButton: the escape button/key, defaults to esc.
 
     Used to create a new information message box and display it.
     """
@@ -161,20 +175,34 @@ def CreateInfoMessageBox(msgWinTitle, msgText, msgInfoText, msgDetailText=None, 
         msgIcon=QMessageBox.Information,
         # set message box button
         msgButtons=msgButtons,
+        # set message box default confirmation button/key (enter key)
+        msgDefaultButton=msgDefaultButton,
+        # set message box escape confirmation button/key (esc key)
+        msgEscapeButton=msgEscapeButton,
     )
     # execute the message box
     DisplayMessageBox(msg)
 
 
 # Create a new Warning Message Box
-def CreateWarningMessageBox(msgWinTitle, msgText, msgInfoText, msgDetailText=None, msgButtons=QMessageBox.Ok):
+def CreateWarningMessageBox(
+    msgWinTitle,
+    msgText,
+    msgInfoText,
+    msgDetailText=None,
+    msgButtons=QMessageBox.Ok,
+    msgDefaultButton=None,
+    msgEscapeButton=None,
+):
     """
-    Function CreateWarningMessageBox(winTitle, msgText, msgInfoText, msgDetailText, msgButtons)
+    Function CreateWarningMessageBox(winTitle, msgText, msgInfoText, msgDetailText, msgButtons, msgDefaultButton, msgEscapeButton)
     msgWinTitle: Message box window title.
     msgText: The text in our message box.
     msgInfoText: the informative text in our message box.
     msgDetailText: the detailed text of our message box, defaults to None.
     msgButtons: the button on our message box (defaults to QMessageBox.Ok).
+    msgDefaultButton: the confirmation button/key, defaults to enter.
+    msgEscapeButton: the escape button/key, defaults to esc.
 
     Used to create a new Warning message box and display it.
     """
@@ -193,20 +221,34 @@ def CreateWarningMessageBox(msgWinTitle, msgText, msgInfoText, msgDetailText=Non
         msgIcon=QMessageBox.Warning,
         # set message box button
         msgButtons=msgButtons,
+        # set message box default confirmation button/key (enter key)
+        msgDefaultButton=msgDefaultButton,
+        # set message box escape confirmation button/key (esc key)
+        msgEscapeButton=msgEscapeButton,
     )
     # execute the message box
     DisplayMessageBox(msg)
 
 
 # Create a new Critical/Error Message Box
-def CreateErrorMessageBox(msgWinTitle, msgText, msgInfoText, msgDetailText=None, msgButtons=QMessageBox.Ok):
+def CreateErrorMessageBox(
+    msgWinTitle,
+    msgText,
+    msgInfoText,
+    msgDetailText=None,
+    msgButtons=QMessageBox.Ok,
+    msgDefaultButton=None,
+    msgEscapeButton=None,
+):
     """
-    Function CreateErrorMessageBox(winTitle, msgText, msgInfoText, msgDetailText, msgButtons)
+    Function CreateErrorMessageBox(winTitle, msgText, msgInfoText, msgDetailText, msgButtons, msgDefaultButton, msgEscapeButton)
     msgWinTitle: Message box window title.
     msgText: The text in our message box.
     msgInfoText: the informative text in our message box.
     msgDetailText: the detailed text of our message box, defaults to None.
     msgButtons: the button on our message box (defaults to QMessageBox.Ok).
+    msgDefaultButton: the confirmation button/key, defaults to enter.
+    msgEscapeButton: the escape button/key, defaults to esc.
 
     Used to create a new critical/error message box and display it.
     """
@@ -225,6 +267,10 @@ def CreateErrorMessageBox(msgWinTitle, msgText, msgInfoText, msgDetailText=None,
         msgIcon=QMessageBox.Critical,
         # set message box button
         msgButtons=msgButtons,
+        # set message box default confirmation button/key (enter key)
+        msgDefaultButton=msgDefaultButton,
+        # set message box escape confirmation button/key (esc key)
+        msgEscapeButton=msgEscapeButton,
     )
     # execute the message box
     DisplayMessageBox(msg)
@@ -232,15 +278,23 @@ def CreateErrorMessageBox(msgWinTitle, msgText, msgInfoText, msgDetailText=None,
 
 # Create a new Question Message Box
 def CreateQuestionMessageBox(
-    msgWinTitle, msgText, msgInfoText, msgDetailText=None, msgButtons=QMessageBox.Ok
+    msgWinTitle,
+    msgText,
+    msgInfoText,
+    msgDetailText=None,
+    msgButtons=QMessageBox.Ok,
+    msgDefaultButton=None,
+    msgEscapeButton=None,
 ) -> QMessageBox:
     """
-    Function CreateQuestionMessageBox(winTitle, msgText, msgInfoText, msgDetailText, msgButtons)
+    Function CreateQuestionMessageBox(winTitle, msgText, msgInfoText, msgDetailText, msgButtons, msgDefaultButton, msgEscapeButton)
     msgWinTitle: Message box window title.
     msgText: The text in our message box.
     msgInfoText: the informative text in our message box.
     msgDetailText: the detailed text of our message box, defaults to None.
     msgButtons: the button on our message box (defaults to QMessageBox.Ok).
+    msgDefaultButton: the confirmation button/key, defaults to enter.
+    msgEscapeButton: the escape button/key, defaults to esc.
 
     Used to create a new Question message box, returns a QMessageBox object.
     """
@@ -259,6 +313,10 @@ def CreateQuestionMessageBox(
         msgIcon=QMessageBox.Question,
         # set message box button
         msgButtons=msgButtons,
+        # set message box default confirmation button/key (enter key)
+        msgDefaultButton=msgDefaultButton,
+        # set message box escape confirmation button/key (esc key)
+        msgEscapeButton=msgEscapeButton,
     )
     # return our new Question message box
     return msg
