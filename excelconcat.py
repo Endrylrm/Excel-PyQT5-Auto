@@ -235,6 +235,8 @@ class ExcelConcat(QWidget):
                         self.debugMessage("Concatenando a planilha: " + debugSheet)
                     # append / concatenate to our excel file list
                     self.excelFilesList.append(excelFile)
+                    # Bugfix: used for files with sheets that have the same name
+                    currentSheet = 0
                     # for each excel file in our excel files list
                     for xlsFile in self.excelFilesList:
                         # turn our sheets into DataFrames
@@ -253,10 +255,15 @@ class ExcelConcat(QWidget):
                                 SheetsToConcatenate["Data"] = SheetsToConcatenate["Data"].dt.strftime("%d/%m/%Y")
                             # Just for debug purposes
                             print(SheetsToConcatenate)
-                            # put our sheets on our dataFrame Dictionary
-                            self.dataFramesDict[sheets] = SheetsToConcatenate
-                            # print our sheet in our dictionary
-                            print(self.dataFramesDict[sheets])
+                            # Dictionaries can't have two or more Keys with the same "name"
+                            if sheets in self.dataFramesDict:
+                                self.dataFramesDict[sheets + str(currentSheet)] = SheetsToConcatenate
+                            else:
+                                self.dataFramesDict[sheets] = SheetsToConcatenate
+                            # increment our currentSheet
+                            currentSheet += 1
+                            # print our keys
+                            print(self.dataFramesDict.keys())
                 # if our files paths are bigger than 0
                 if len(Files[0]) > 0:
                     print("Concatenating sheets and putting to our DataFrame!")
